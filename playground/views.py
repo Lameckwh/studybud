@@ -72,28 +72,41 @@ def home(request):
     )
     room_count = rooms.count()
     topics = Topic.objects.all()
-    context = {"rooms": rooms, "topics": topics, "room_count": room_count}
+    room_messages = Messages.objects.filter(Q(room__name__icontains=q))
+    context = {
+        "rooms": rooms,
+        "topics": topics,
+        "room_count": room_count,
+        "room_messages": room_messages,
+    }
     return render(request, "playground/home.html", context)
 
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages = Messages.objects.filter(room=room).order_by("-created")
-
+    room_messages = Messages.objects.filter(room=room)
+    participants = room.participants.all()
     if request.method == "POST":
         message = Messages.objects.create(
             user=request.user,
             room=room,
             body=request.POST.get("body"),
         )
+        room.participants.add(request.user)
 
         return redirect("room", pk=room.id)
 
     context = {
         "room": room,
         "room_messages": room_messages,
+        "participants": participants,
     }
     return render(request, "playground/room.html", context)
+
+
+def userProfile(request):
+    context = {}
+    return render(request, "playground/profile.html", context)
 
 
 @login_required(login_url="login")
@@ -137,3 +150,18 @@ def deleteRoom(request, pk):
         room.delete()
         return redirect("home")
     return render(request, "playground/delete.html", {"obj": room})
+
+
+@login_required(login_url="login")
+def deleteMessage(request, pk):
+    message = Messages.objects.get(id=pk)
+
+    # Check if the current user is the owner of the message
+    if request.user != message.user:
+        return HttpResponse("You are not allowed to delete this message")
+
+    if request.method == "POST":
+        message.delete()
+        return redirect("home")
+
+    return render(request, "playground/delete.html", {"obj": message})
