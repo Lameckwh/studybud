@@ -158,6 +158,7 @@ def updateRoom(request, pk):
     context = {
         "form": form,
         "topics": topics,
+        "room": room,
     }
     return render(request, "playground/room_form.html", context)
 

@@ -3,7 +3,7 @@
 :root {
   --color-main: #71c6dd;
   --color-main-light: #e1f6fb;
-  --color-dark: #3f4156;
+  --color-dark: midnightblue;
   --color-dark-medium: #51546e;
   --color-dark-light: #696d97;
   --color-light: #e5e5e5;
@@ -269,7 +269,7 @@ a {
 
 .header {
   padding: 1.5rem;
-  background-color: var(--color-dark);
+  background-color: midnightblue;
 }
 
 .header > .container {
